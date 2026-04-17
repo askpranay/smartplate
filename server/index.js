@@ -13,7 +13,7 @@ console.log('   DB_USER:', process.env.DB_USER || 'root');
 console.log('   DB_NAME:', process.env.DB_NAME || 'smartplate');
 console.log('   PORT:', process.env.PORT || 4000);
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json());
 
 // Debug: Log all incoming requests
