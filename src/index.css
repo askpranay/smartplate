@@ -424,3 +424,38 @@ body {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Dropdown container - white rounded rectangle */
+.user-dropdown-menu {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* User name - black text */
+.user-dropdown-menu > p:first-child {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+/* User email - dark gray text */
+.user-dropdown-menu > p:nth-child(2) {
+  color: #666666 !important;
+}
+
+/* Horizontal divider line */
+.user-dropdown-menu hr {
+  border-color: #e0e0e0 !important;
+}
+
+/* Sign out button text - white (button has coral bg) */
+.user-dropdown-menu button {
+  color: #ffffff !important;
+}
+
+/* Prevent any global styles from overriding dropdown */
+header nav ul li div[style*="position: absolute"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+}

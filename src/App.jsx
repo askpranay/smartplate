@@ -1,59 +1,75 @@
 import React, { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom'; // Import Router components
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'; // ✅ Added BrowserRouter
 import { RecipeProvider } from './context/RecipeContext';
+import { AuthProvider } from "./context/AuthContext";
 import Header from './components/Header';
 import Hero from './components/Hero';
 import IngredientInput from './components/IngredientInput';
 import FilterBar from './components/FilterBar';
 import RecipeGrid from './components/RecipeGrid';
-import RecipeDetail from './components/RecipeDetail'; // Import new page
+import RecipeDetail from './components/RecipeDetail';
 import FavoritesList from './components/FavoritesList';
 import './index.css';
+import { useAuth } from "./context/AuthContext";
 
-// Create a Home Component to keep App clean
+// Home Component
 const Home = () => {
-  const navigate = useNavigate(); // To handle clicking on recipes
-  
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   return (
     <>
+      {user && (
+        <div style={{ 
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white", 
+          padding: "0.75rem 1.5rem", 
+          textAlign: "center",
+          fontSize: "0.95rem",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}>
+          Welcome back, {user.displayName}! 🎉
+        </div>
+      )}
+      
       <Hero />
       <div className="container">
         <IngredientInput />
         <FilterBar />
-        {/* Pass empty function since Card now handles navigation internally */}
         <RecipeGrid onRecipeClick={() => {}} />
       </div>
     </>
   );
 };
 
+// Main App Component
 function App() {
   const [showFavorites, setShowFavorites] = useState(false);
-
-  const toggleFavorites = () => {
-    setShowFavorites(!showFavorites);
-  };
+  const toggleFavorites = () => setShowFavorites(!showFavorites);
 
   return (
-    <RecipeProvider>
-      <div className="App">
-        <Header onToggleFavorites={toggleFavorites} showFavorites={showFavorites} />
-        
-        {showFavorites ? (
-          <div className="container">
-            <FavoritesList onRecipeClick={() => {}} />
-          </div>
-        ) : (
-          <Routes>
-            {/* Route for Home Page */}
-            <Route path="/" element={<Home />} />
+    <BrowserRouter> {/* ✅ Router wraps EVERYTHING */}
+      <AuthProvider>
+        <RecipeProvider>
+          <div className="App">
+            <Header onToggleFavorites={toggleFavorites} showFavorites={showFavorites} />
             
-            {/* Route for Recipe Detail Page */}
-            <Route path="/recipe/:id" element={<RecipeDetail />} />
-          </Routes>
-        )}
-      </div>
-    </RecipeProvider>
+            <main style={{ minHeight: "calc(100vh - 60px)" }}>
+              {showFavorites ? (
+                <div className="container">
+                  <FavoritesList onRecipeClick={() => {}} />
+                </div>
+              ) : (
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/recipe/:id" element={<RecipeDetail />} />
+                </Routes>
+              )}
+            </main>
+          </div>
+        </RecipeProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

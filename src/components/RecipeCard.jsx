@@ -4,9 +4,13 @@ import { useRecipes } from '../context/RecipeContext';
 
 const RecipeCard = ({ recipe }) => {
   const navigate = useNavigate();
-  const { favorites, toggleFavorite, ratings, calculateMatch } = useRecipes();
   
-  const isFavorite = favorites.includes(recipe.id);
+  // ✅ FIX: Destructure isFavorite from context (was missing!)
+  const { favorites, toggleFavorite, ratings, calculateMatch, isFavorite } = useRecipes();
+  
+  // ❌ REMOVED: const isFavorite = favorites.includes(recipe.id);
+  // ✅ Now using the helper from context which handles type-safe comparisons
+  
   const rating = ratings[recipe.id] || 0;
   const matchPercentage = recipe.matchPercentage || calculateMatch(recipe);
 
@@ -16,7 +20,8 @@ const RecipeCard = ({ recipe }) => {
 
   const handleFavoriteClick = (e) => {
     e.stopPropagation();
-    toggleFavorite(recipe.id);
+    // ✅ toggleFavorite already receives full recipe object (correct!)
+    toggleFavorite(recipe);
   };
 
   return (
@@ -36,7 +41,7 @@ const RecipeCard = ({ recipe }) => {
           <div style={{
             width: '100%',
             height: '24px',
-            background: '#e2e8f0', // Light gray track
+            background: '#e2e8f0',
             borderRadius: '12px',
             overflow: 'hidden',
             position: 'relative',
@@ -44,16 +49,14 @@ const RecipeCard = ({ recipe }) => {
             boxShadow: 'none',
             border: 'none'
           }}>
-            {/* Green Fill */}
             <div style={{
               width: `${matchPercentage}%`,
               height: '100%',
-              background: '#10b981', // Modern Green
+              background: '#10b981',
               borderRadius: '12px 0 0 12px',
               transition: 'width 0.5s ease'
             }} />
             
-            {/* Bold Text Overlay */}
             <div style={{
               position: 'absolute',
               top: 0,
@@ -64,7 +67,7 @@ const RecipeCard = ({ recipe }) => {
               alignItems: 'center',
               paddingLeft: '10px',
               fontSize: '11px',
-              fontWeight: '800', // Extra Bold
+              fontWeight: '800',
               color: 'white',
               textShadow: '0 1px 2px rgba(0,0,0,0.3)',
               letterSpacing: '0.5px',
@@ -117,7 +120,7 @@ const RecipeCard = ({ recipe }) => {
               )}
             </div>
 
-            {/* Favorite Button (BORDER REMOVED) */}
+            {/* Favorite Button - ✅ Uses isFavorite helper from context */}
             <button 
               onClick={handleFavoriteClick}
               aria-label="Add to favorites"
@@ -125,18 +128,22 @@ const RecipeCard = ({ recipe }) => {
                 fontSize: '24px', 
                 padding: '8px', 
                 background: 'transparent', 
-                border: 'none',         // <--- Explicitly removed border
-                outline: 'none',        // <--- Removed focus outline
+                border: 'none',
+                outline: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'transform 0.2s'
+                transition: 'transform 0.2s',
+                // ✅ Conditional styling based on favorite status
+                color: isFavorite(recipe.id) ? '#e74c3c' : '#9ca3af',
+                transform: isFavorite(recipe.id) ? 'scale(1.1)' : 'scale(1)'
               }}
               onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'}
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             >
-              {isFavorite ? '❤️' : '🤍'}
+              {/* ✅ Uses isFavorite helper - ensures proper re-render */}
+              {isFavorite(recipe.id) ? '❤️' : '🤍'}
             </button>
           </div>
 

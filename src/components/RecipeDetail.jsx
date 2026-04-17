@@ -6,6 +6,8 @@ import { substitutions } from '../data/recipes';
 const RecipeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // ✅ FIX: Destructure isFavorite from context
   const { 
     allRecipes, 
     favorites, 
@@ -13,7 +15,8 @@ const RecipeDetail = () => {
     ratings, 
     rateRecipe, 
     getMissingIngredients,
-    userIngredients 
+    userIngredients,
+    isFavorite  // ✅ Added - was missing!
   } = useRecipes();
 
   // Find the recipe based on the URL ID
@@ -39,7 +42,9 @@ const RecipeDetail = () => {
 
   if (!recipe) return <div className="container" style={{paddingTop: '100px', color: 'white'}}>Recipe not found!</div>;
 
-  const isFavorite = favorites.includes(recipe.id);
+  // ❌ REMOVED: const isFavorite = favorites.includes(recipe.id);
+  // ✅ Now using the helper from context (type-safe, re-renders properly)
+  
   const currentRating = ratings[recipe.id] || 0;
   const missingIngredients = getMissingIngredients(recipe);
 
@@ -148,7 +153,7 @@ const RecipeDetail = () => {
             borderRadius: '16px'
           }}>
             
-            {/* 1. LEFT: Favorites Button */}
+            {/* 1. LEFT: Favorites Button - ✅ Uses isFavorite helper */}
             <div style={{ 
               flex: '1 1 auto', 
               display: 'flex', 
@@ -156,11 +161,11 @@ const RecipeDetail = () => {
               width: isMobile ? '100%' : 'auto' 
             }}>
               <button 
-                onClick={() => toggleFavorite(recipe.id)}
+                onClick={() => toggleFavorite(recipe)}
                 className="btn"
                 style={{ 
-                  background: isFavorite ? '#ff6b6b' : 'white', 
-                  color: isFavorite ? 'white' : '#2d3436',
+                  background: isFavorite(recipe.id) ? '#ff6b6b' : 'white', 
+                  color: isFavorite(recipe.id) ? 'white' : '#2d3436',
                   display: 'flex', alignItems: 'center', gap: '10px',
                   border: '1px solid #eee',
                   boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
@@ -172,8 +177,10 @@ const RecipeDetail = () => {
                   cursor: 'pointer'
                 }}
               >
-                {isFavorite ? 'Favorite' : 'Add to Favorites'}
-                <span style={{ fontSize: '20px', lineHeight: 1 }}>{isFavorite ? '❤️' : '🤍'}</span>
+                {isFavorite(recipe.id) ? 'Favorite' : 'Add to Favorites'}
+                <span style={{ fontSize: '20px', lineHeight: 1 }}>
+                  {isFavorite(recipe.id) ? '❤️' : '🤍'}
+                </span>
               </button>
             </div>
 

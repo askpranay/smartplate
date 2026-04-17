@@ -3,17 +3,22 @@ import { useRecipes } from '../context/RecipeContext';
 import { substitutions } from '../data/recipes';
 
 const RecipeModal = ({ recipe, onClose }) => {
+  // ✅ FIX: Destructure isFavorite from context
   const { 
     favorites, 
     toggleFavorite, 
     ratings, 
     rateRecipe, 
     getMissingIngredients,
-    userIngredients 
+    userIngredients,
+    isFavorite  // ✅ Added - was missing!
   } = useRecipes();
   
   const [servings, setServings] = useState(recipe.servings);
-  const isFavorite = favorites.includes(recipe.id);
+  
+  // ❌ REMOVED: const isFavorite = favorites.includes(recipe.id);
+  // ✅ Now using the helper from context
+  
   const currentRating = ratings[recipe.id] || 0;
   const missingIngredients = getMissingIngredients(recipe);
 
@@ -22,7 +27,8 @@ const RecipeModal = ({ recipe, onClose }) => {
   };
 
   const handleFavoriteClick = () => {
-    toggleFavorite(recipe.id);
+    // ✅ toggleFavorite receives full recipe object (correct!)
+    toggleFavorite(recipe);
   };
 
   const adjustServings = (newServings) => {
@@ -33,7 +39,6 @@ const RecipeModal = ({ recipe, onClose }) => {
 
   const calculateAdjustedAmount = (originalAmount) => {
     const ratio = servings / recipe.servings;
-    // This is a simple multiplier - in production you'd parse amounts properly
     return originalAmount;
   };
 
@@ -62,19 +67,36 @@ const RecipeModal = ({ recipe, onClose }) => {
           <h1 className="recipe-detail-title">{recipe.title}</h1>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+            {/* ✅ Favorite Button - Uses isFavorite helper */}
             <button 
-              className={`icon-btn ${isFavorite ? 'favorited' : ''}`}
+              className={`icon-btn ${isFavorite(recipe.id) ? 'favorited' : ''}`}
               onClick={handleFavoriteClick}
-              style={{ fontSize: '32px' }}
+              style={{ 
+                fontSize: '32px',
+                // ✅ Conditional styling based on favorite status
+                color: isFavorite(recipe.id) ? '#e74c3c' : '#9ca3af',
+                transition: 'transform 0.2s',
+                transform: isFavorite(recipe.id) ? 'scale(1.1)' : 'scale(1)'
+              }}
             >
-              {isFavorite ? '❤️' : '🤍'}
+              {/* ✅ Uses isFavorite helper - ensures proper re-render */}
+              {isFavorite(recipe.id) ? '❤️' : '🤍'}
             </button>
+            
             <div className="rating">
               {[1, 2, 3, 4, 5].map(star => (
                 <span
                   key={star}
                   className={`star ${star <= currentRating ? 'filled' : ''}`}
                   onClick={() => handleRating(star)}
+                  style={{
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                    color: star <= currentRating ? '#ffd700' : '#d1d5db',
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
                   ★
                 </span>
