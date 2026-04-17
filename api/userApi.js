@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:4000/api/users';
+const BASE = `${import.meta.env.VITE_API_URL}/api/users`;
 
 export const syncUser = (user) =>
   fetch(`${BASE}/sync`, {
